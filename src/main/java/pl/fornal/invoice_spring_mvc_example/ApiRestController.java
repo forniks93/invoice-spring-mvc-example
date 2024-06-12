@@ -12,52 +12,66 @@ import java.util.Scanner;
 
 public class ApiRestController {
     public static void main(String[] args) {
-        try {
-            Scanner scanner = new Scanner(System.in);
+        try (Scanner scanner = new Scanner(System.in)) {
             String city;
 
-            do {
+            while (true) {
                 System.out.println("=================================");
-                System.out.println("Enter City(Say No to quit): ");
+                System.out.println("Enter City (type 'No' to quit): ");
                 city = scanner.nextLine();
 
                 if (city.equalsIgnoreCase("No")) break;
 
-                JSONObject cityLocationData = (JSONObject) getLocationData(city);
-                double latitude = (double) cityLocationData.get("latitude");
-                double longitude = (double) cityLocationData.get("longitude");
+                JSONObject cityLocationData = getLocationData(city);
+                if (cityLocationData == null) {
+                    System.out.println("Error: Could not retrieve location data.");
+                    continue;
+                }
+
+                // Sprawdzanie null przed rzutowaniem
+                Double latitude = (Double) cityLocationData.get("latitude");
+                Double longitude = (Double) cityLocationData.get("longitude");
+
+                if (latitude == null || longitude == null) {
+                    System.out.println("Error: Invalid location data received.");
+                    continue;
+                }
 
                 displayWeatherData(latitude, longitude);
-            } while (!city.equalsIgnoreCase("No"));
-        } catch (Exception e){
+            }
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     private static JSONObject getLocationData(String city) {
-        city = city.replaceAll(" ","+");
+        city = city.replace(" ", "+");
 
         String urlString = "https://geocoding-api.open-meteo.com/v1/search?name=" + city + "&count=1&language=en&format=json";
-
-        try{
+        try {
             HttpURLConnection apiConnection = fetchApiResponse(urlString);
 
-            if(apiConnection.getResponseCode()!=200){
+            if (apiConnection == null || apiConnection.getResponseCode() != 200) {
                 System.out.println("Error: Could not connect to API");
                 return null;
             }
+
             String jsonResponse = readApiResponse(apiConnection);
+            if (jsonResponse == null) {
+                System.out.println("Error: Could not read API response");
+                return null;
+            }
 
             JSONParser parser = new JSONParser();
             JSONObject resultsJsonObj = (JSONObject) parser.parse(jsonResponse);
 
             JSONArray locationData = (JSONArray) resultsJsonObj.get("results");
-            return (JSONObject) locationData.get(0);
+            return locationData != null && !locationData.isEmpty() ? (JSONObject) locationData.get(0) : null;
 
-        } catch (Exception e){
+        } catch (IOException | ParseException e) {
             e.printStackTrace();
+            return null;
         }
-        return null;
     }
 
     private static void displayWeatherData (double latitude, double longitude){
@@ -92,32 +106,28 @@ public class ApiRestController {
         }
     }
 
-    private static HttpURLConnection fetchApiResponse(String urlString){
-        try{
+    private static HttpURLConnection fetchApiResponse(String urlString) {
+        try {
             URL url = new URL(urlString);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
             return conn;
-        } catch (IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
+            return null;
         }
-        return null;
     }
 
-    private static String readApiResponse(HttpURLConnection apiConnection){
-        try{
+    private static String readApiResponse(HttpURLConnection apiConnection) {
+        try (Scanner scanner = new Scanner(apiConnection.getInputStream())) {
             StringBuilder resultJson = new StringBuilder();
-            Scanner scanner = new Scanner(apiConnection.getInputStream());
-
-            while(scanner.hasNext()){
+            while (scanner.hasNext()) {
                 resultJson.append(scanner.nextLine());
             }
-            scanner.close();
             return resultJson.toString();
-        } catch (IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
+            return null;
         }
-        return null;
     }
 }
-
