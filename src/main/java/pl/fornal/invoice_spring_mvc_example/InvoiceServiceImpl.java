@@ -1,63 +1,77 @@
 package pl.fornal.invoice_spring_mvc_example;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import pl.fornal.invoice_spring_mvc_example.repository.entity.Client;
+import pl.fornal.invoice_spring_mvc_example.repository.entity.ClientRepository;
+import pl.fornal.invoice_spring_mvc_example.repository.entity.Invoice;
+import pl.fornal.invoice_spring_mvc_example.repository.entity.InvoiceRepository;
 
-;
-import java.util.ArrayList;
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
 
 @Service
 public class InvoiceServiceImpl implements InvoiceService {
 
-    private final List<Invoice> invoiceList;
-    private final AtomicLong counter = new AtomicLong();
+    private final InvoiceRepository invoiceRepository;
+    private final ClientRepository clientRepository;
 
-    public InvoiceServiceImpl() {
-        this.invoiceList = new ArrayList<>();
-        initCounter();
+    public InvoiceServiceImpl(InvoiceRepository invoiceRepository, ClientRepository clientRepository) {
+        this.invoiceRepository = invoiceRepository;
+        this.clientRepository = clientRepository;
+
+        init();
     }
 
-    private void initCounter() {
-        long maxId = invoiceList.stream()
-                .mapToLong(Invoice::getId)
-                .max()
-                .orElse(0);
-        counter.set(maxId);
+    @Transactional
+    public void init() {
+        Invoice invoice1 = new Invoice();
+        invoice1.setDate(LocalDate.of(2024, 6, 18));
+        invoice1.setPrice(BigDecimal.valueOf(150));
+        invoice1.setName("TEST1");
+
+        Client client1 = new Client();
+        client1.setClientName("Piotr");
+        invoice1.setClient(client1);
+        invoiceRepository.save(invoice1);
+
+        Invoice invoice2 = new Invoice();
+        invoice2.setDate(LocalDate.of(2025, 7, 13));
+        invoice2.setPrice(BigDecimal.valueOf(250));
+        invoice2.setName("TEST2");
+
+        Client client2 = new Client();
+        client2.setClientName("Stefan");
+        invoice2.setClient(client2);
+        invoiceRepository.save(invoice2);
+
+        System.out.println(invoiceRepository.findAll());
+        System.out.println(clientRepository.findAll());
     }
 
     @Override
     public List<Invoice> getAllInvoices() {
-        return invoiceList;
+        return invoiceRepository.findAll();
     }
 
     @Override
     public void saveInvoice(Invoice invoice) {
-        // Generowanie ID dla nowej faktury
-        invoice.setId(counter.incrementAndGet());
-        invoiceList.add(invoice);
+        invoiceRepository.save(invoice);
     }
 
     @Override
     public void deleteInvoice(Long id) {
-        invoiceList.removeIf(invoice -> invoice.getId().equals(id));
+        invoiceRepository.deleteById(id);
     }
 
     @Override
     public void updateInvoice(Invoice invoice) {
-        for (int i = 0; i < invoiceList.size(); i++) {
-            if (invoiceList.get(i).getId().equals(invoice.getId())) {
-                invoiceList.set(i, invoice);
-                return;
-            }
-        }
+        invoiceRepository.save(invoice);
     }
 
     @Override
     public Invoice findInvoiceById(Long id) {
-        return invoiceList.stream()
-                .filter(invoice -> invoice.getId().equals(id))
-                .findFirst()
-                .orElse(null);
+        return invoiceRepository.findById(id).orElse(null);
     }
 }

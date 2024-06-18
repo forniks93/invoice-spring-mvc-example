@@ -1,6 +1,8 @@
 package pl.fornal.invoice_spring_mvc_example;
 
 
+import pl.fornal.invoice_spring_mvc_example.repository.entity.Invoice;
+
 import java.util.List;
 
 public interface InvoiceService {
