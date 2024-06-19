@@ -12,23 +12,22 @@
     <table class="table">
         <thead>
         <tr>
-            <th scope="col">#</th>
-            <th scope="col">Price</th>
-            <th scope="col">Date</th>
-            <th scope="col">Name</th>
-            <th scope="col">Actions</th>
+            <th scope="col">Cena Całkowita</th>
+            <th scope="col">Klient</th>
+            <th scope="col">Data</th>
+<!--            <th scope="col">Name</th>-->
+<!--            <th scope="col">Actions</th>-->
         </tr>
         </thead>
         <tbody>
-        <tr th:each="invoice : ${allInvoices}">
-            <td th:text="${invoice.id}"></td>
-            <td th:text="${invoice.price}"></td>
-            <td th:text="${invoice.date}"></td>
-            <td th:text="${invoice.name}"></td>
-            <td>
-                <a th:href="@{/delete(id=${invoice.id})}" class="btn btn-danger">DELETE</a>
-                <a th:href="@{/edit-form(id=${invoice.id})}" class="btn btn-primary">EDIT</a>
-            </td>
+        <tr th:each="order : ${allOrders}">
+            <td th:text="${order.getFinalPrice()}"></td>
+            <td th:text="${order.getClientName()}"></td>
+            <td th:text="${order.getDate()}"></td>
+<!--            <td>-->
+<!--                <a th:href="@{/delete(id=${invoice.id})}" class="btn btn-danger">DELETE</a>-->
+<!--                <a th:href="@{/edit-form(id=${invoice.id})}" class="btn btn-primary">EDIT</a>-->
+<!--            </td>-->
         </tr>
         </tbody>
     </table>

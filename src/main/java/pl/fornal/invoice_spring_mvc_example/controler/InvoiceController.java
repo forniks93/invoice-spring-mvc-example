@@ -1,4 +1,4 @@
-package pl.fornal.invoice_spring_mvc_example;
+package pl.fornal.invoice_spring_mvc_example.controler;
 
 
 import org.springframework.stereotype.Controller;
@@ -7,6 +7,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import pl.fornal.invoice_spring_mvc_example.InvoiceService;
+import pl.fornal.invoice_spring_mvc_example.controler.dto.Order;
+import pl.fornal.invoice_spring_mvc_example.repository.ClientRepository;
 import pl.fornal.invoice_spring_mvc_example.repository.entity.Invoice;
 
 import java.util.List;
@@ -15,15 +18,17 @@ import java.util.List;
 public class InvoiceController {
 
     private final InvoiceService invoiceService;
+    private ClientRepository clientRepository;
 
-    public InvoiceController(InvoiceService invoiceService) {
+    public InvoiceController(InvoiceService invoiceService, ClientRepository clientRepository) {
         this.invoiceService = invoiceService;
+        this.clientRepository = clientRepository;
     }
 
     @GetMapping
     public String getAllInvoices(Model model){
-        List<Invoice> allInvoices = invoiceService.getAllInvoices();
-        model.addAttribute("allInvoices",allInvoices);
+        List<Order> allOrders = clientRepository.getAllOrders();
+        model.addAttribute("allOrders",allOrders);
         return "gui";
     }
 

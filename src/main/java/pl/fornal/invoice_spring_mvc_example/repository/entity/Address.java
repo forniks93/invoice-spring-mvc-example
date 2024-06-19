@@ -2,32 +2,17 @@ package pl.fornal.invoice_spring_mvc_example.repository.entity;
 
 import jakarta.persistence.*;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.Set;
-
 @Entity
-@Table(name = "invoices")
-public class Invoice {
-
+@Table(name = "addresses")
+public class Address {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private LocalDate date;
+    private String StreetName;
 
-    @OneToOne(cascade = CascadeType.PERSIST)
+    @ManyToOne
+    @JoinColumn(name = "client_fk")
     private Client client;
-
-    @ManyToMany(cascade = CascadeType.ALL)
-    private Set<Product> product;
-
-    public Set<Product> getProduct() {
-        return product;
-    }
-
-    public void setProduct(Set<Product> product) {
-        this.product = product;
-    }
 
     public Client getClient() {
         return client;
@@ -45,21 +30,19 @@ public class Invoice {
         this.id = id;
     }
 
-
-
-    public LocalDate getDate() {
-        return date;
+    public String getStreetName() {
+        return StreetName;
     }
 
-    public void setDate(LocalDate date) {
-        this.date = date;
+    public void setStreetName(String streetName) {
+        StreetName = streetName;
     }
 
     @Override
     public String toString() {
-        return "Invoice{" +
+        return "Address{" +
                 "id=" + id +
-                ", date=" + date +
+                ", StreetName='" + StreetName + '\'' +
                 ", client=" + client.getClientName() +
                 '}';
     }

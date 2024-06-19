@@ -3,13 +3,14 @@ package pl.fornal.invoice_spring_mvc_example.repository.entity;
 import jakarta.persistence.*;
 
 @Entity
+@Table(name = "clients")
 public class Client {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String clientName;
 
-    @OneToOne(cascade = CascadeType.PERSIST)
+    @OneToOne(cascade = CascadeType.PERSIST,mappedBy = "client")
     private Invoice invoice;
 
     public Invoice getInvoice() {
